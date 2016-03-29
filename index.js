@@ -74,7 +74,7 @@ function fetchStatuses( sha ) {
 function dateIsTooOld(date) {
 	var elapsedHours = moment().diff( moment(date), 'hours', true);
 
-	return elapsedHours > 6;
+	return elapsedHours > 24;
 }
 
 function getBaseFromPR( pr ) {
