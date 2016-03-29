@@ -14,7 +14,7 @@ var baseOptions = {
 	json: true
 };
 
-var basicAuthPrefix = process.env.USERNAME + ':' + process.env.PERSONAL_STATUS_TOKEN;
+var basicAuthPrefix = process.env.USERNAME + ':' + process.env.GITHUB_PERSONAL_STATUS_TOKEN;
 
 var baseUrl = 'https://' + basicAuthPrefix + '@api.github.com/repos/Automattic/wp-calypso';
 
