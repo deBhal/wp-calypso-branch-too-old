@@ -98,8 +98,10 @@ function prIsTooOld( pr ) {
 	if( ! pr.base ) {
 		return false;
 	}
-	var baseSHA = pr.base.sha;
-	var baseDate = getCommitDate(baseSHA);
+
+	// Figure out which commit in master the branch is based on
+	var baseSHA = localGithub.getMergeBase( pr.base.sha );
+	var baseDate = getCommitDate( baseSHA );
 	return dateIsTooOld(baseDate);
 }
 
@@ -109,7 +111,11 @@ function debugCheckPR( pr ) {
 }
 
 function handlePullsResponse( body ) {
-	_(body).filter(prIsTooOld).forEach( function( pr ) {
+	// Make sure local git is up to date
+	localGithub.pull();
+
+	// TODO: I need to get the mergebase back out of the PR check
+	_(body).filter( prIsTooOld ).forEach( function( pr ) {
 		if( debugCheckPR(pr) ) {
 			console.log( 'checking pr', pr.number);
 			// pr.number and pr.url (api, not html)  might be useful
