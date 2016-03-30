@@ -43,7 +43,7 @@ console.log( 'sendTooOldStatus sha:', sha);
 		uri: statusesUrl( sha ),
 		body: {
 			"state": "failure",
-			"description": "Branch's base is more than 6 hours old.  Please rebase",
+			"description": "Branch's base is more than 24 hours old.  Please rebase",
 			"context": "branch-too-old"
 		}
 	} )
