@@ -3,7 +3,7 @@ var request = require('request');
 var moment = require('moment');
 var rp = require('request-promise');
 
-var localGithub = require('./local-github')('./git_repo');
+var localGithub = require('./local-git')('./git_repo');
 
 var getCommitDate = localGithub.getCommitDate;
 
