@@ -7,6 +7,22 @@ var localGithub = require('./local-git')('./git_repo');
 
 var getCommitDate = localGithub.getCommitDate;
 
+/* Config contains the repo:
+{
+	"repo":"Automattic/wp-calypso"
+}
+*/
+var config = require('./config.json');
+
+/* Generate a personal token for the repo on the github website
+{
+	"userName": "Your Username",
+	"token": "123456789abcde0123456789abcdef0123456789"
+}
+*/
+var auth = require('./auth' );
+options = _.merge(config, auth);
+
 var baseOptions = {
 	headers: {
 		'User-Agent': 'request',
@@ -14,9 +30,9 @@ var baseOptions = {
 	json: true
 };
 
-var basicAuthPrefix = process.env.USERNAME + ':' + process.env.GITHUB_PERSONAL_STATUS_TOKEN;
+var basicAuthPrefix=auth.userName + ':' + auth.token + '@';
 
-var baseUrl = 'https://' + basicAuthPrefix + '@api.github.com/repos/Automattic/wp-calypso';
+var baseUrl = 'https://' + basicAuthPrefix + 'api.github.com/repos/Automattic/wp-calypso';
 
 function optionsForUrl( url ) {
 	return {
@@ -48,6 +64,7 @@ console.log( 'sendTooOldStatus sha:', sha);
 		}
 	} )
 
+	throw new Error('Yeah, *do not* send any statuses');
 	rp(options)
 	.then(function(body) {
 			// everything is ok
@@ -86,7 +103,7 @@ function fetchStatusContexts(pr) {
 		console.log('no head!');
 		return new Promise(null);
 	}
-	console.log( 'hasTooOldStatusPromise for:', pr.number, pr.head.sha );
+	console.log( 'fetchStatusContexts for:', pr.number, pr.head.sha );
 	return fetchStatuses( pr.head.sha ).then(function( body ) {
 		return _.map(body,function(status) {
 			return status.context;
@@ -106,6 +123,7 @@ function prIsTooOld( pr ) {
 }
 
 function debugCheckPR( pr ) {
+	return true;
 	var whitelist = [ 4283, 4374, 3650, 3611];
 	return _.includes( whitelist, pr.number );
 }
@@ -123,11 +141,17 @@ function handlePullsResponse( body ) {
 			fetchStatusContexts( pr ).then( function( statusContexts ) {
 				if( ! _.includes( statusContexts, 'branch-too-old' ) ) {
 					console.log( 'sending Too Old status for pr:', pr.number);
-					sendTooOldStatus( pr.head.sha );
+					// sendTooOldStatus( pr.head.sha );
 				}
 			} ).catch( onError );
 		}
 	});
+}
+
+function listLabelsRequest( options ) {
+	options = _.merge({}, baseOptions, options);
+	var target = options.pull || options.issue;
+
 }
 
 // Note: the issues url lets us filter by labels, but forces
@@ -143,5 +167,16 @@ var pullsOptions = {
 	},
 	json: true
 }
+
+function getLabelsOptions ( id ) {
+	return  _.merge({}, baseOptions,
+	{
+		url: baseUrl + '/issues/' + id + '/labels'
+	} );
+}
+function dumpResult(result) {
+	console.log(result);
+}
+rp(getLabelsOptions(4283)).then(dumpResult);
 
 rp( pullsOptions).then( handlePullsResponse ).catch( onError );
